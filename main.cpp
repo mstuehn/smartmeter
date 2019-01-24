@@ -73,8 +73,8 @@ int main( int argc, char* argv[] )
 		config_filename = std::string(optarg);
             break;
         case 'h':
-            usage();
         default:
+            usage();
             break;
         }
     }
