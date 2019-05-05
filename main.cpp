@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <iostream>
@@ -52,14 +53,38 @@ static void query_registers( Json::Value& desc )
     EventQueue.call_in( desc["poll"].asInt(), query_registers, desc );
 }
 
+static void __attribute__((noreturn))
+usage(void)
+{
+    printf("usage: %s [-c] config-file\n", getprogname());
+	exit(1);
+}
+
 int main( int argc, char* argv[] )
 {
     mosquitto_lib_init();
     s_KeepRunning = true;
     signal(SIGINT,my_handler);
 
+    std::string config_filename = "/usr/local/etc/smartmeter/config.json";
+
+    signed char ch;
+    while ((ch = getopt(argc, argv, "c:h")) != -1) {
+        switch (ch) {
+        case 'c':
+		config_filename = std::string(optarg);
+            break;
+        case 'h':
+        default:
+            usage();
+            break;
+        }
+    }
+    argc -= optind;
+    argv += optind;
+
+    std::ifstream config( config_filename, std::ifstream::in );
     Json::Value root;
-    std::ifstream config("config.json", std::ifstream::in );
 
     try{
         config >> root;
