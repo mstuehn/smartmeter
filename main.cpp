@@ -94,10 +94,7 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
-    char hostname[80];
-    gethostname( hostname, sizeof(hostname) );
-
-    mqtt = mosquitto_new( hostname, true, nullptr );
+    mqtt = mosquitto_new( nullptr, true, nullptr );
     if( mqtt == nullptr ) {
         std::cerr << "unable to init mqtt" << std::endl;
         return (2);
