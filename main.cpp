@@ -11,6 +11,8 @@
 #include <modbus/modbus.h>
 #include <mosquitto.h>
 
+#include <unistd.h>
+
 #include "eventqueue/eventqueue.h"
 
 static std::atomic<bool> s_KeepRunning;
@@ -67,8 +69,10 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
+    char hostname[80];
+    gethostname( hostname, sizeof(hostname) );
 
-    mqtt = mosquitto_new( "nanobsd-smartmeter", true, nullptr );
+    mqtt = mosquitto_new( hostname, true, nullptr );
     if( mqtt == nullptr ) {
         std::cerr << "unable to init mqtt" << std::endl;
         return (2);
