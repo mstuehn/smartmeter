@@ -23,6 +23,21 @@ static events::EventQueue EventQueue;
 struct mosquitto* mqtt;
 static int reconnects = 0;
 
+std::string random_string( size_t length )
+{
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
 
 void my_handler( int s ){
     std::cout << "Stopping smartmeter" << std::endl;
@@ -94,7 +109,7 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
-    mqtt = mosquitto_new( nullptr, true, nullptr );
+    mqtt = mosquitto_new( random_string(7).c_str(), true, nullptr );
     if( mqtt == nullptr ) {
         std::cerr << "unable to init mqtt" << std::endl;
         return (2);
