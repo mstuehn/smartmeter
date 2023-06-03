@@ -2,3 +2,5 @@ compile_commands.json
 .depend
 smartmeter*
 *.o
+*d
+.cache
