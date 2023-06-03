@@ -47,24 +47,43 @@ void my_handler( int s ){
 
 static void query_registers( Json::Value& desc )
 {
-    Json::Value pub;
-    uint16_t regs[2];
+    union {
+        uint16_t u16[2] ;
+        int16_t i16[2] ;
+        uint32_t u32;
+        int32_t i32;
+    } reads;
 
-    int result = modbus_read_input_registers( ctx, desc["modbus-address"].asInt(), 2, regs );
-    if( result == 2 )
+    Json::Value pub;
+    const size_t regcnt = desc["modbus-regcnt"].asInt();
+    const float factor = desc["factor"].asFloat();
+    const bool regsigned = desc["modbus-signed"].asBool();
+
+    int result = modbus_read_input_registers( ctx, desc["modbus-address"].asInt(), regcnt, reads.u16 );
+    if( result > 0 )
     {
         Json::StreamWriterBuilder wbuilder;
-        pub[desc["attr"].asCString()] = modbus_get_float_dcba( regs );
+        wbuilder.settings_["precision"] = 7;
+
+        if( result == 1 )
+        {
+            auto val = regsigned ? reads.i16[0] : reads.u16[0];
+            pub[desc["attr"].asCString()] = (float)val * factor;
+        }
+        if( result == 2 )
+        {
+            auto val = regsigned ? reads.i32 : reads.u32;
+            pub[desc["attr"].asCString()] = (float)val * factor;
+        }
 
         std::string msg = Json::writeString(wbuilder, pub);
         std::string topic = desc["mqtt-publish"].asCString();
 
         mosquitto_publish( mqtt, nullptr,
-                           topic.c_str(),
-                           msg.length(),
-                           msg.c_str(), 0, false );
+                topic.c_str(),
+                msg.length(),
+                msg.c_str(), 0, false );
     }
-
     EventQueue.call_in( desc["poll"].asInt(), query_registers, desc );
 }
 

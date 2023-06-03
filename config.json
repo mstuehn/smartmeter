@@ -9,102 +9,57 @@
         "name" : "SDM530",
         "connection" : {
             "type" : "RTU",
-            "port" : "/dev/cuaU0",
-            "speed" : 9600,
+            "port" : "/dev/cuaU2",
+            "speed" : 19200,
             "parity" : "N",
             "bits" : 8,
             "stopbits" : 1,
             "slave" : 1,
-            "debug" : false 
+            "debug" : false
         },
         "registers": [
             {
-                "attr" : "volt1",
-                "description" :  "Phase 1 line to neutral volts",
-                "mqtt-publish" : "house/SDM530",
+                "attr" : "GridVoltage",
+                "description" :  "Grid Voltage",
+                "mqtt-publish" : "house/solax",
                 "modbus-address" : 0,
-                "unit" : "V",
-                "poll" : 10000
+                "modbus-regcnt" : 1,
+                "factor" : 0.1,
+                "unit" : "A",
+                "poll" : 5000
             },
             {
-                "attr" : "volt2",
-                "description" :  "Phase 2 line to neutral volts",
-                "mqtt-publish" : "house/SDM530",
+                "attr" : "feedin_power",
+                "description" :  "Power obtained",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : 70,
+                "modbus-regcnt" : 2,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "C",
+                "poll" : 5000
+            },
+            {
+                "attr" : "GridPower",
+                "description" :  "Grid Power",
+                "mqtt-publish" : "house/solax",
                 "modbus-address" : 2,
-                "unit" : "V",
-                "poll" : 10000
-            },
-            {
-                "attr" : "volt3",
-                "description" :  "Phase 3 line to neutral volts",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 4,
-                "unit" : "V",
-                "poll" : 10000
-            },
-            {
-                "attr" : "amp1",
-                "description" :  "Phase 1 line to neutral current",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 6,
-                "unit" : "A",
-                "poll" : 10000
-            },
-            {
-                "attr" : "amp2",
-                "description" :  "Phase 2 line to neutral current",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 8,
-                "unit" : "A",
-                "poll" : 10000
-            },
-            {
-                "attr" : "amp3",
-                "description" :  "Phase 3 line to neutral current",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 10,
-                "unit" : "A",
-                "poll" : 10000
-            },
-            {
-                "attr" : "pwr1",
-                "description" :  "Phase 1 power",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 12,
+                "modbus-regcnt" : 1,
+                "modbus-signed" : false,
+                "factor" : 1.0,
                 "unit" : "W",
-                "poll" : 10000
+                "poll" : 5000
             },
             {
-                "attr" : "pwr2",
-                "description" :  "Phase 2 power",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 14,
-                "unit" : "W",
-                "poll" : 10000
-            },
-            {
-                "attr" : "pwr3",
-                "description" :  "Phase 3 power",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 16,
-                "unit" : "W",
-                "poll" : 10000
-            },
-            {
-                "attr" : "pwrt",
-                "description" :  "Total system power",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 52,
-                "unit" : "W",
-                "poll" : 10000
-            },
-            {
-                "attr" : "kwht",
-                "description" :  "Total kWh",
-                "mqtt-publish" : "house/SDM530",
-                "modbus-address" : 342,
-                "unit" : "kWh",
-                "poll" : 1000000
+                "attr" : "consum_energy_today",
+                "description" :  "Feeding Energy Today",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : 154,
+                "modbus-regcnt" : 2,
+                "modbus-signed" : false,
+                "factor" : 0.01,
+                "unit" : "kW",
+                "poll" : 5000
             }
         ]
     }
