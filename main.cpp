@@ -7,7 +7,7 @@
 #include <string>
 #include <atomic>
 
-#include "json/json.h"
+#include <json/json.h>
 
 #include <modbus/modbus.h>
 #include <mosquitto.h>
@@ -58,8 +58,11 @@ static void query_registers( Json::Value& desc )
     const size_t regcnt = desc["modbus-regcnt"].asInt();
     const float factor = desc["factor"].asFloat();
     const bool regsigned = desc["modbus-signed"].asBool();
+    const auto address = desc["modbus-address"].isString() ?
+                        std::stoi(desc["modbus-address"].asString(), nullptr, 0) :
+                        desc["modbus-address"].asInt();
 
-    int result = modbus_read_input_registers( ctx, desc["modbus-address"].asInt(), regcnt, reads.u16 );
+    int result = modbus_read_input_registers( ctx, address, regcnt, reads.u16 );
     if( result > 0 )
     {
         Json::StreamWriterBuilder wbuilder;
@@ -90,8 +93,8 @@ static void query_registers( Json::Value& desc )
 static void __attribute__((noreturn))
 usage(void)
 {
-    printf("usage: %s [-c] config-file\n", getprogname());
-	exit(1);
+    printf("usage: [-c] config-file\n");
+    exit(1);
 }
 
 int main( int argc, char* argv[] )
@@ -106,7 +109,7 @@ int main( int argc, char* argv[] )
     while ((ch = getopt(argc, argv, "c:h")) != -1) {
         switch (ch) {
         case 'c':
-		config_filename = std::string(optarg);
+            config_filename = std::string(optarg);
             break;
         case 'h':
         default:
