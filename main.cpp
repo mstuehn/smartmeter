@@ -70,13 +70,13 @@ static void query_registers( Json::Value& desc )
 
         if( result == 1 )
         {
-            auto val = regsigned ? reads.i16[0] : reads.u16[0];
-            pub[desc["attr"].asCString()] = (float)val * factor;
+            float val = regsigned ? reads.i16[0] : reads.u16[0];
+            pub[desc["attr"].asCString()] = val * factor;
         }
         if( result == 2 )
         {
-            auto val = regsigned ? reads.i32 : reads.u32;
-            pub[desc["attr"].asCString()] = (float)val * factor;
+            float val = regsigned ? (float)reads.i32 : (float)reads.u32;
+            pub[desc["attr"].asCString()] = val * factor;
         }
 
         std::string msg = Json::writeString(wbuilder, pub);
