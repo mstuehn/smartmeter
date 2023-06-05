@@ -19,47 +19,125 @@
         },
         "registers": [
             {
-                "attr" : "GridVoltage",
-                "description" :  "Grid Voltage",
+                "attr" : "inverter-power",
+                "description" :  "inverter-power",
                 "mqtt-publish" : "house/solax",
-                "modbus-address" : 0,
+                "modbus-address" : "0x02",
                 "modbus-regcnt" : 1,
-                "factor" : 0.1,
-                "unit" : "A",
-                "poll" : 5000
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
             },
             {
-                "attr" : "feedin_power",
-                "description" :  "Power obtained",
-                "mqtt-publish" : "house/solax",
-                "modbus-address" : 70,
-                "modbus-regcnt" : 2,
+                "attr" : "pv-inverter-temperature",
+                "description" :  "Radiator Temperature",
+                "mqtt-publish" : "house/temperatures/pv-inverter-temp",
+                "modbus-address" : "0x08",
+                "modbus-regcnt" : 1,
                 "modbus-signed" : true,
                 "factor" : 1.0,
                 "unit" : "C",
-                "poll" : 5000
+                "poll" : 60000
             },
             {
-                "attr" : "GridPower",
-                "description" :  "Grid Power",
+                "attr" : "pv-battery-temperature",
+                "description" :  "Radiator Temperature",
+                "mqtt-publish" : "house/temperatures/pv-battery-temp",
+                "modbus-address" : "0x18",
+                "modbus-regcnt" : 1,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "C",
+                "poll" : 60000
+            },
+            {
+                "attr" : "solar1",
+                "description" :  "Power DC1",
                 "mqtt-publish" : "house/solax",
-                "modbus-address" : 2,
+                "modbus-address" : "0x0A",
                 "modbus-regcnt" : 1,
                 "modbus-signed" : false,
                 "factor" : 1.0,
                 "unit" : "W",
-                "poll" : 5000
+                "poll" : 10000
             },
             {
-                "attr" : "consum_energy_today",
-                "description" :  "Feeding Energy Today",
+                "attr" : "solar2",
+                "description" :  "Power DC1",
                 "mqtt-publish" : "house/solax",
-                "modbus-address" : 154,
-                "modbus-regcnt" : 2,
+                "modbus-address" : "0x0B",
+                "modbus-regcnt" : 1,
                 "modbus-signed" : false,
-                "factor" : 0.01,
-                "unit" : "kW",
-                "poll" : 5000
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
+            },
+            {
+                "attr" : "bat_charge_power",
+                "description" :  "Battery Charge (Power)",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x16",
+                "modbus-regcnt" : 1,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
+            },
+            {
+                "attr" : "bat_capacity",
+                "description" :  "Battery Capacity",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x1C",
+                "modbus-regcnt" : 1,
+                "modbus-signed" : false,
+                "factor" : 1.0,
+                "unit" : "%",
+                "poll" : 10000
+            },
+            {
+                "attr" : "carrier_pwr",
+                "description" :  "Carrier",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x46",
+                "modbus-regcnt" : 2,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
+            },
+            {
+                "attr" : "GridPowerR",
+                "description" :  "Grid Power R",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x6C",
+                "modbus-regcnt" : 1,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
+            },
+            {
+                "attr" : "GridPowerS",
+                "description" :  "Grid Power S",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x70",
+                "modbus-regcnt" : 1,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
+            },
+            {
+                "attr" : "GridPowerT",
+                "description" :  "Grid Power T",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x74",
+                "modbus-regcnt" : 1,
+                "modbus-signed" : true,
+                "factor" : 1.0,
+                "unit" : "W",
+                "poll" : 10000
             }
         ]
     }
