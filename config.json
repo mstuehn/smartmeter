@@ -9,13 +9,15 @@
         "name" : "SDM530",
         "connection" : {
             "type" : "RTU",
-            "port" : "/dev/cuaU2",
+            "port" : "/dev/cuaU",
             "speed" : 19200,
             "parity" : "N",
             "bits" : 8,
             "stopbits" : 1,
             "slave" : 1,
-            "debug" : false
+            "debug" : false,
+            "modbus-name" : "3HB4802I631506",
+            "modbus-address": "0x00"
         },
         "registers": [
             {
