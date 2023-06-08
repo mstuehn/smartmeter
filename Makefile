@@ -13,13 +13,13 @@ INCLUDES= -I. \
 
 CFLAGS+=${INCLUDES}
 
-CXXFLAGS+=${INCLUDES}
+CXXFLAGS+=${INCLUDES} -std=c++17
 
 LDFLAGS+=-L/usr/lib \
 	 -L/usr/local/lib \
 
 LDADD=-ljsoncpp -lmosquitto -pthread -lmodbus
-COMPILER_FEATURES=c++11
+COMPILER_FEATURES=c++17
 
 all: ${PROG_CXX}
 
