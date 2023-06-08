@@ -110,6 +110,7 @@ usage(void)
 
 int main( int argc, char* argv[] )
 {
+    bool verbose = false;
     mosquitto_lib_init();
     s_KeepRunning = true;
     signal(SIGINT,my_handler);
@@ -117,8 +118,11 @@ int main( int argc, char* argv[] )
     std::string config_filename = "/usr/local/etc/smartmeter/config.json";
 
     signed char ch;
-    while ((ch = getopt(argc, argv, "c:h")) != -1) {
+    while ((ch = getopt(argc, argv, "c:hv")) != -1) {
         switch (ch) {
+        case 'v':
+            verbose = true;
+            break;
         case 'c':
             config_filename = std::string(optarg);
             break;
@@ -171,17 +175,17 @@ int main( int argc, char* argv[] )
         if( found || !s_KeepRunning ) break;
 
         auto devname = dev.path().string();
-        std::cout << "Trying " << devname << " <-> "  << devbasename << std::endl;
+        if( verbose ) std::cout << "Trying " << devname << " <-> "  << devbasename << std::endl;
 
         if( !(devname.rfind( devbasename ) != std::string::npos)
             || (devname.rfind( ".lock" ) != std::string::npos)
             || (devname.rfind( ".init" ) != std::string::npos)
             || !dev.is_character_file() ) {
-            std::cout << " No match, trying next " << std::endl;
+            if( verbose ) std::cout << " No match, trying next " << std::endl;
             continue;
         }
 
-        std::cout << dev.path() << " matches configured, continue" << std::endl;
+        std::cout << "Try to connect " << dev.path() << " via modbus-rtu" << std::endl;
 
         ctx = modbus_new_rtu( dev.path().string().c_str(),
                 mb_con["speed"].asInt(),
