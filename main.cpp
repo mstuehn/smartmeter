@@ -1,3 +1,5 @@
+#include "eventqueue/eventqueue.h"
+
 #include <signal.h>
 #include <unistd.h>
 
@@ -6,6 +8,7 @@
 #include <fstream>
 #include <string>
 #include <atomic>
+#include <filesystem>
 
 #include <json/json.h>
 
@@ -14,7 +17,8 @@
 
 #include <unistd.h>
 
-#include "eventqueue/eventqueue.h"
+
+namespace fs = std::filesystem;
 
 static std::atomic<bool> s_KeepRunning;
 static modbus_t* ctx;
@@ -22,6 +26,13 @@ static events::EventQueue EventQueue;
 
 struct mosquitto* mqtt;
 static int reconnects = 0;
+
+static inline int asInt( Json::Value& item )
+{
+    return item.isString() ?
+        std::stoi(item.asString(), nullptr, 0) :
+        item.asInt();
+}
 
 std::string random_string( size_t length )
 {
@@ -145,22 +156,102 @@ int main( int argc, char* argv[] )
     if( result < 0 ) return 5;
 
     auto mb_con = root["modbus-configuration"]["connection"];
-    ctx = modbus_new_rtu( mb_con["port"].asCString(),
-                          mb_con["speed"].asInt(),
-                          *(mb_con["parity"].asCString()),
-                          mb_con["bits"].asInt(),
-                          mb_con["stopbits"].asInt());
-    if( ctx == nullptr ) {
-        std::cerr << "Failed to init modbus ctx" << std::endl;
-        return 1;
+
+    std::string devbasename = mb_con["port"].asString();
+
+    auto module_name = mb_con["modbus-name"].asString();
+    auto module_name_address = asInt( mb_con["modbus-address"] );
+
+    std::cout << "Name " << module_name << std::endl;
+    std::cout << "Address " << module_name_address << std::endl;
+
+    bool found = false;
+    for( auto const& dev : fs::directory_iterator{"/dev"} ) {
+
+        if( found || !s_KeepRunning ) break;
+
+        auto devname = dev.path().string();
+        std::cout << "Trying " << devname << " <-> "  << devbasename << std::endl;
+
+        if( !(devname.rfind( devbasename ) != std::string::npos)
+            || (devname.rfind( ".lock" ) != std::string::npos)
+            || (devname.rfind( ".init" ) != std::string::npos)
+            || !dev.is_character_file() ) {
+            std::cout << " No match, trying next " << std::endl;
+            continue;
+        }
+
+        std::cout << dev.path() << " matches configured, continue" << std::endl;
+
+        ctx = modbus_new_rtu( dev.path().string().c_str(),
+                mb_con["speed"].asInt(),
+                *(mb_con["parity"].asCString()),
+                mb_con["bits"].asInt(),
+                mb_con["stopbits"].asInt());
+        if( ctx == nullptr ) {
+            std::cerr << "Failed to init modbus ctx" << std::endl;
+            return 1;
+        }
+
+        modbus_set_slave( ctx, mb_con["slave"].asInt() );
+        modbus_set_debug( ctx, mb_con["debug"].asBool() );
+
+        if( modbus_connect( ctx ) < 0  ) {
+            modbus_close(ctx);
+            modbus_free(ctx);
+            std::cerr << "Unable to connect modbus" << std::endl;
+            return 2;
+        }
+
+        {
+            union {
+                char c[14];
+                uint8_t u8[14];
+                uint16_t u16[7];
+            }reads;
+
+            int cnt = 5;
+            while( s_KeepRunning ) {
+
+                int result = modbus_read_registers( ctx, module_name_address, 7, reads.u16 );
+                if( result < 0 ) {
+                    if( cnt-- < 0 ) {
+                        std::cerr << "Could not connect to "
+                            << devname
+                            << ", closing modbus and try next"
+                            << std::endl;
+                        modbus_close( ctx );
+                        modbus_free( ctx );
+                        ctx = nullptr;
+                        break;
+                    } else {
+                        std::cerr << "Error during Read, try again" << std::endl;
+                        sleep(1);
+                        continue;
+                    }
+                }
+
+                std::string mod_name(reads.c, sizeof(reads.c));
+                std::cout << "Found Module " << mod_name << std::endl;
+                if( reads.c != module_name ) {
+                    std::cerr << "-" << mod_name
+                        << " does not match configured name "
+                        << module_name << std::endl;
+                    modbus_close( ctx );
+                    modbus_free( ctx );
+                    ctx = nullptr;
+                } else {
+                    std::cout << "-" << mod_name << " is configured, continue" << std::endl;
+                    found = true;
+                }
+                break;
+            }
+        }
     }
 
-    modbus_set_slave( ctx, mb_con["slave"].asInt() );
-    modbus_set_debug( ctx, mb_con["debug"].asBool() );
-
-    if( modbus_connect( ctx ) < 0  ) {
-        std::cerr << "Unable to connect modbus" << std::endl;
-        return 2;
+    if( ctx == nullptr ){
+        std::cerr << "No port found, abort" << std::endl;
+        return 6;
     }
 
     auto mb_regs = root["modbus-configuration"]["registers"];
@@ -173,7 +264,9 @@ int main( int argc, char* argv[] )
     mosquitto_loop_stop( mqtt, true );
 
     modbus_close(ctx);
+    modbus_free(ctx);
 
+    mosquitto_destroy( mqtt );
     mosquitto_lib_cleanup();
     return 0;
 }
