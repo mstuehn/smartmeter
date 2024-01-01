@@ -4,3 +4,4 @@ smartmeter*
 *.o
 *d
 .cache
+compile_flags.txt
