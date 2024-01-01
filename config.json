@@ -109,6 +109,39 @@
                 "poll" : 10000
             },
             {
+                "attr" : "feedin_energy_total",
+                "description" :  "Energy to the Grid",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x48",
+                "modbus-regcnt" : 2,
+                "modbus-signed" : false,
+                "factor" : 0.01,
+                "unit" : "kWh",
+                "poll" : 60000
+            },
+            {
+                "attr" : "consum_energy_total",
+                "description" :  "Energy from the Grid",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x4A",
+                "modbus-regcnt" : 2,
+                "modbus-signed" : false,
+                "factor" : 0.01,
+                "unit" : "kWh",
+                "poll" : 60000
+            },
+            {
+                "attr" : "solar_energy_total",
+                "description" :  "Total energy from solar",
+                "mqtt-publish" : "house/solax",
+                "modbus-address" : "0x94",
+                "modbus-regcnt" : 2,
+                "modbus-signed" : false,
+                "factor" : 0.1,
+                "unit" : "kWh",
+                "poll" : 60000
+            },
+            {
                 "attr" : "GridPowerR",
                 "description" :  "Grid Power R",
                 "mqtt-publish" : "house/solax",
