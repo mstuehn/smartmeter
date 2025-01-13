@@ -237,8 +237,8 @@ int main( int argc, char* argv[] )
 
                 std::string mod_name(reads.c, sizeof(reads.c));
                 std::cout << "Found Module " << mod_name << std::endl;
-                if( reads.c != module_name ) {
-                    std::cerr << "-" << mod_name
+                if( mod_name != module_name ) {
+                    std::cerr << "->" << mod_name << "<-"
                         << " does not match configured name "
                         << module_name << std::endl;
                     modbus_close( ctx );
